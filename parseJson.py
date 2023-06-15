@@ -1,6 +1,6 @@
 import json
-import math
 import xlsxwriter
+import os
 
 def split_dictionary(input_dict, chunk_size):
     res = []
@@ -15,7 +15,7 @@ def split_dictionary(input_dict, chunk_size):
     return res
 
 def writeHeader(sheet,chkRound):
-    header = ["Team Name","Username", "Rating","Kills", "Deaths","K/D", "Headshot %","KOST","Entry Diff.", "KPR", "SRV","Trade Diff.","Clutch", "Plant", "Defuse"]
+    header = ["Team Name","Team ID","Username", "Rating","Kills", "Deaths","K/D", "Headshot %","KOST","Entry Diff.", "KPR", "SRV","Trade Diff.","Clutch", "Plant", "Defuse"]
     if(chkRound):
         header = ["Username","Team ID", "Operator","Kills", "Died", "Plant", "Defuse","Death Traded","KOST Point","# of Headshots","OK","OD", "Clutch"]
     row,column = 0,0
@@ -57,7 +57,11 @@ def writeEndGame(sheet,gameInfo, overallStats):
 #["Team Name","Username", "Kills", "Deaths","K/D", "Headshot %","KOST","Entry Diff.", "KPR", "SRV",Trade Diff.,"Clutch", "Plant", "Defuse"]
 #overallStats: Team Name, Kills, Deaths, KOST Points, OK, OD, Clutch, Plant, Defuse,Deaths Traded,Headshots
     for player in overallStats:
+        
         statArray = overallStats.get(player)
+        teamID = 0
+        if(statArray[0] == gameInfo.get("team0Name")):teamID = 0
+        else: teamID = 1
         kills = statArray[1]
         deaths = statArray[2]
         numHeadshots = statArray[10]
@@ -78,20 +82,21 @@ def writeEndGame(sheet,gameInfo, overallStats):
         rating = round(0.037 + 0.0004*OK - 0.005*OD + 0.714*kpr + 0.492*srv + 0.471*kost + 0.026*clutches + 0.015*plants + 0.019*defuses,2)
 
         sheet.write(row,0, statArray[0])#Team Name
-        sheet.write(row,1, player)# Username
-        sheet.write(row,2,rating)# Rating
-        sheet.write(row,3, statArray[1])#Kills
-        sheet.write(row,4, statArray[2])#Deaths
-        sheet.write(row,5, kd) #K/D
-        sheet.write(row,6, headshots) #Headshot Percentage
-        sheet.write(row,7, kostPerc)#KOST %
-        sheet.write(row,8, entryDiff)#entry +/-
-        sheet.write(row,9, kpr)#KPR
-        sheet.write(row,10, srv)#Survival rate
-        sheet.write(row,11, tradeDiff)#Trade Diff (Traded Deaths - Deaths)
-        sheet.write(row,12, clutches)#Clutches
-        sheet.write(row,13, plants)#Plants
-        sheet.write(row,14, defuses)#Defuses
+        sheet.write(row,1, teamID)# TeamID
+        sheet.write(row,2, player)# Username
+        sheet.write(row,3,rating)# Rating
+        sheet.write(row,4, statArray[1])#Kills
+        sheet.write(row,5, statArray[2])#Deaths
+        sheet.write(row,6, kd) #K/D
+        sheet.write(row,7, headshots) #Headshot Percentage
+        sheet.write(row,8, kostPerc)#KOST %
+        sheet.write(row,9, entryDiff)#entry +/-
+        sheet.write(row,10, kpr)#KPR
+        sheet.write(row,11, srv)#Survival rate
+        sheet.write(row,12, tradeDiff)#Trade Diff (Traded Deaths - Deaths)
+        sheet.write(row,13, clutches)#Clutches
+        sheet.write(row,14, plants)#Plants
+        sheet.write(row,15, defuses)#Defuses
         row+=1
     sheet.write(12, 0,"Map: ")
     sheet.write(12,1,gameInfo.get("Map"))
@@ -101,7 +106,7 @@ def writeEndGame(sheet,gameInfo, overallStats):
     sheet.write(14,1,gameInfo.get("Team1Score"))
 
 def writeToExcel(gameInfo,perRoundStats,fullGameStats):#Pass full game info as a list. Each entry is a dictionary
-    bookName = gameInfo.get("Map")+"_"+ str(gameInfo.get("Team0Score"))+"-"+ str(gameInfo.get("Team1Score")) + "_"+gameInfo.get("Date")+".xlsx"
+    bookName = "Output/"+gameInfo.get("Map")+"_"+ str(gameInfo.get("Team0Score"))+"-"+ str(gameInfo.get("Team1Score")) + "_"+gameInfo.get("Date")+".xlsx"
     workbook = xlsxwriter.Workbook(bookName)
     teamNamesList = []
     teamNamesList.append(gameInfo.get("team0Name"))
@@ -248,9 +253,17 @@ def getRoundStats(roundDict): #get player stats for each round
         outDict.update({playersAlive[0]:stats})
     return outDict
 
+
 # Opening JSON file
-f = open('game.json')
-  
+filed = input("Please input the path to the json file.\n")
+f = open(filed)
+
+#making output Directory
+directory = "Output/"
+
+if not os.path.exists(directory):
+    os.makedirs(directory)
+
 # returns JSON object as 
 # a dictionary
 data = json.load(f)
