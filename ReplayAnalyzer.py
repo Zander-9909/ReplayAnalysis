@@ -51,7 +51,7 @@ def writeRoundStats(sheet, roundDict,teamNames):
     sheet.write(14,0,"Win Type: ")
     sheet.write(14,1,roundDict.get("winCondition"))
 
-def writeEndGame(sheet,gameInfo, overallStats):
+def writeEndGame(sheet,gameInfo, overallStats,siteStatistics):
     totalRounds = gameInfo.get("Team0Score") + gameInfo.get("Team1Score")
     row = 1
 #["Team Name","Username", "Kills", "Deaths","K/D", "Headshot %","KOST","Entry Diff.", "KPR", "SRV",Trade Diff.,"Clutch", "Plant", "Defuse"]
@@ -104,8 +104,33 @@ def writeEndGame(sheet,gameInfo, overallStats):
     sheet.write(13,1,gameInfo.get("Team0Score"))
     sheet.write(14,0,"Team 1 Score: ")
     sheet.write(14,1,gameInfo.get("Team1Score"))
+    #Write site win/loss statistics
+    sheet.write(12,3,"Site Name")
+    sheet.write(12,4,"T0 Att Plays")
+    sheet.write(12,5,"T0 Att W/L")
+    sheet.write(12,6,"T0 Def Plays")
+    sheet.write(12,7,"T0 Def W/L")
+    sheet.write(12,8,"T1 Att Plays")
+    sheet.write(12,9,"T1 Att W/L")
+    sheet.write(12,10,"T1 Def Plays")
+    sheet.write(12,11,"T1 Def W/L")
+    siteRow = 13
+    for site in siteStatistics:
+        sheet.write(siteRow,3,site)
+        siteDic = siteStatistics.get(site)
+        wins = siteDic.get("wins")
+        plays = siteDic.get("plays")
+        siteCol = 4
+        for i in range (4):
+            sheet.write(siteRow,siteCol,plays[i])
+            siteCol +=1
+            sheet.write(siteRow,siteCol,"{:.0%}".format(wins[i]/plays[i]))
+            siteCol +=1
+        siteRow+=1
 
-def writeToExcel(gameInfo,perRoundStats,fullGameStats):#Pass full game info as a list. Each entry is a dictionary
+
+
+def writeToExcel(gameInfo,perRoundStats,fullGameStats,siteStatistics):#Pass full game info as a list. Each entry is a dictionary
     bookName = "Output/"+gameInfo.get("Map")+"_"+ str(gameInfo.get("Team0Score"))+"-"+ str(gameInfo.get("Team1Score")) + "_"+gameInfo.get("Date")+".xlsx"
     workbook = xlsxwriter.Workbook(bookName)
     teamNamesList = []
@@ -114,7 +139,7 @@ def writeToExcel(gameInfo,perRoundStats,fullGameStats):#Pass full game info as a
     fullGameSheet = workbook.add_worksheet("Full Game Stats")#Final Game Scoreboard
     writeHeader(fullGameSheet,False)
     #Write Full Game Stats
-    writeEndGame(fullGameSheet,gameInfo, fullGameStats)
+    writeEndGame(fullGameSheet,gameInfo, fullGameStats,siteStatistics)
 
     inc = 1
     for roundE in perRoundStats:
@@ -271,6 +296,8 @@ game_data = split_dictionary(data, 1)[0]
 score_board = split_dictionary(data, 1)[1]
 rounds = game_data.get("rounds")#list of rounds. Each is a dictionary
 players = rounds[0].get("players")#list of players
+#5 row array. Row index 0-1 are # win on Att or Def for Team 0, 2-3 are # win on Att or Def for Team 1
+siteStatistics = {}
 
 #[teamID, operator, kills, died, planted, defused, traded, KOST Point, # of headshots,OK, OD,clutch]
 rawRoundStats = []
@@ -301,11 +328,75 @@ for roundA in rounds:
         roundInfo.update({"winner": teamInfo[1].get("name")})#Team 0 Name
         roundInfo.update({"winCondition": teamInfo[1].get("winCondition")})#Team 0 Name
         Team1Score += 1 
+    #Add round statistics to siteStatistics array
+    
+    if roundInfo.get("site") in siteStatistics:
+        currSiteDic = siteStatistics.get(roundInfo.get("site"))
+        currSiteArray = currSiteDic.get("wins")
+        currSitePlays = currSiteDic.get("plays")
+        #Site played previously
+        if(roundInfo.get("winner")==roundInfo.get("team0Name")):
+            #Team 0 Won
+            if(roundInfo.get("team0Side") == "Attack"):
+                #Att win on that site
+                currSiteArray[0] +=1 #add attack win
+                currSitePlays[0] +=1
+                currSitePlays[3] +=1
+            else: 
+                #Def win on that site
+                currSiteArray[1] +=1 #add Def win
+                currSitePlays[1] +=1
+                currSitePlays[2] +=1
+        else:
+            #Team 1 Won
+            if(roundInfo.get("team1Side") == "Attack"):
+                #Att win on that site
+                currSiteArray[2] +=1 #add attack win
+                currSitePlays[2] +=1
+                currSitePlays[1] +=1
+            else: 
+                #Def win on that site
+                currSiteArray[3] +=1 #add Def win
+                currSitePlays[3] +=1
+                currSitePlays[0] +=1
+        currSiteDic.update({"plays":currSitePlays})  
+        currSiteDic.update({"wins":currSiteArray})  
+        siteStatistics.update({roundInfo.get("site"):currSiteDic})
+    else:
+        arrPlays = [0,0,0,0]
+        arrWins = [0,0,0,0]
+        if(roundInfo.get("winner")==roundInfo.get("team0Name")):
+            #Team 0 Won
+            if(roundInfo.get("team0Side") == "Attack"):
+                #Att win on that site
+                arrWins[0] +=1 #add attack win
+                arrPlays[0] +=1 #add attack win
+                arrPlays[3] +=1 
+            else: 
+                #Def win on that site
+                arrWins[1] +=1 #add attack win
+                arrPlays[1] +=1 #add attack win
+                arrPlays[2] +=1 
+        else:
+            #Team 1 Won
+            if(roundInfo.get("team1Side") == "Attack"):
+                #Att win on that site
+                arrWins[2] +=1 #add attack win
+                arrPlays[2] +=1 #add attack win
+                arrPlays[1] +=1 
+            else: 
+                #Def win on that site
+                arrWins[3] +=1 #add attack win
+                arrPlays[3] +=1 #add attack win
+                arrPlays[0] +=1 
+        newDic = {}
+        newDic.update({"wins":arrWins})
+        newDic.update({"plays":arrPlays})
+        siteStatistics.update({roundA.get("site"):newDic})  
     roundStats = getRoundStats(roundA)
     roundInfo.update({"stats":roundStats})
     overallStats = addToOverallStats(overallStats, roundStats)
     rawRoundStats.append(roundInfo)
-
 FullGameInfo =({})
 FullGameInfo.update({"team0Name": teamInfo[0].get("name")})#Team 0 Name
 FullGameInfo.update({"team1Name": teamInfo[1].get("name")})#Team 1 Name
@@ -314,7 +405,7 @@ FullGameInfo.update({"Team0Score":Team0Score})
 FullGameInfo.update({"Team1Score":Team1Score})
 date = rounds[0].get("timestamp").split('T')[0]
 FullGameInfo.update({"Date":date})
-writeToExcel(FullGameInfo,rawRoundStats,overallStats)
+writeToExcel(FullGameInfo,rawRoundStats,overallStats,siteStatistics)
 
 # Closing file
 f.close()
