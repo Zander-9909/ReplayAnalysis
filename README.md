@@ -1,7 +1,7 @@
 # ReplayAnalysis
 
 This is a repository for a python tool created by me to read from the json files outputted from redraskal's R6-Dissect replay file parser (https://github.com/redraskal/r6-dissect).
-Meant to provide the same level of in-depth statistics for teams without the extra headache or time involved with manually extracting the information from VODs. The KOST formula is the one that Reaper_en reverse engineered and that the Overwolf app R6-Analyst uses [Link to Video](https://www.youtube.com/watch?v=faoQZK2875Q). As well, it uses the (as far as I know) accepted trade time of 10s.
+Meant to provide the same level of in-depth statistics for teams without the extra headache or time involved with manually extracting the information from VODs. The KOST formula is the one that [Reaper_en reverse engineered](https://www.youtube.com/watch?v=faoQZK2875Q) and that the Overwolf app R6-Analyst uses. As well, it uses the (as far as I know) accepted trade time of 10s.
 
 It takes in the json, and will parse through it to output an excel file with per round and overall match statistics, modelled after those used in Pro League by Siege.GG. 
 
