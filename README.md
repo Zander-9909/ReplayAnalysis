@@ -17,7 +17,5 @@ Round by round stat page
 Hope this is helpful!
 
 Griffin Taylor
-
 Gamehead for R6
-
 UOttawa Esports
