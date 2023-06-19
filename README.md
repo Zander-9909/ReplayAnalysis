@@ -9,10 +9,10 @@ To use, simply clone the repo and run ReplayAnalyzer.py and it will prompt you f
 Dependencies: json, xlsxwriter, os
 
 End of Match stats page
-![image]([https://github.com/Zander-9909/ReplayAnalysis/assets/71144499/88589f3e-d34d-42ee-864c-929926b40741)
+![image](https://github.com/Zander-9909/ReplayAnalysis/blob/main/Screenshots/Overall%20Match%20View.png)
 
 Round by round stat page
-![image](https://github.com/Zander-9909/ReplayAnalysis/assets/71144499/22eb7aea-f534-4bcb-bb99-938b85b11c63)
+![image](https://github.com/Zander-9909/ReplayAnalysis/blob/main/Screenshots/Round%20stat%20view.png)
 
 Hope this is helpful!
 Griffin Taylor
