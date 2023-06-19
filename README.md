@@ -15,6 +15,9 @@ Round by round stat page
 ![image](https://github.com/Zander-9909/ReplayAnalysis/blob/main/Screenshots/Round%20stat%20view.png)
 
 Hope this is helpful!
+
 Griffin Taylor
+
 Gamehead for R6
+
 UOttawa Esports
