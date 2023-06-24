@@ -69,7 +69,9 @@ def writeEndGame(sheet,gameInfo, overallStats,siteStatistics):
         else: kd = round(kills/deaths,2)
         OK = statArray[4]
         OD = statArray[5]
-        headshots = round(numHeadshots/kills,2)
+        if(kills != 0):
+            headshots = round(numHeadshots/kills,2)
+        else: headshots = kills
         kost = statArray[3]/totalRounds
         kostPerc = round(kost*100,2)
         entryDiff = OK - OD
@@ -121,10 +123,13 @@ def writeEndGame(sheet,gameInfo, overallStats,siteStatistics):
         wins = siteDic.get("wins")
         plays = siteDic.get("plays")
         siteCol = 4
-        for i in range (4):
+        for i in range (len(plays)):
             sheet.write(siteRow,siteCol,plays[i])
             siteCol +=1
-            sheet.write(siteRow,siteCol,"{:.0%}".format(wins[i]/plays[i]))
+            if(plays[i]!= 0):
+                sheet.write(siteRow,siteCol,"{:.0%}".format(wins[i]/plays[i]))
+            else: 
+                sheet.write(siteRow,siteCol,"{:.0%}".format(wins[i]/1))
             siteCol +=1
         siteRow+=1
 
