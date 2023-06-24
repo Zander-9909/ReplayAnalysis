@@ -160,3 +160,5 @@ cython_debug/
 #.idea/
 *.xlsx
 *.json
+*.rec
+r6-dissect.exe
